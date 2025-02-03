@@ -9,7 +9,7 @@ const app = express();
 // Configurar o middleware para servir arquivos estáticos
 app.use(express.json());
 app.use(express.static('public'));
-app.use('/img', express.static('public'));
+app.use('/img', express.static(path.join(__dirname, 'public/img')));
 app.use(cors());
 
 // Diretório base para os arquivos dos parceiros
