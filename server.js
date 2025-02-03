@@ -6,9 +6,10 @@ const cors = require('cors');
 // Crie a aplicação Express
 const app = express();
 
-// Configurações do middleware
+// Configurar o middleware para servir arquivos estáticos
 app.use(express.json());
 app.use(express.static('public'));
+app.use('/img', express.static('public'));
 app.use(cors());
 
 // Diretório base para os arquivos dos parceiros
