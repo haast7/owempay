@@ -1,0 +1,17 @@
+<!-- Atualização: Ajuste de caminhos - Data: 2024 -->
+<!DOCTYPE html>
+<img src="./img/logo.png"> 
+
+async function carregarTaxas(parceiro) {
+    try {
+        const response = await fetch(`./json/parceiros/${parceiro}/taxas.json`);
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        const data = await response.json();
+        return data;
+    } catch (error) {
+        console.error('Erro ao carregar taxas:', error);
+        document.getElementById('erro-taxas').textContent = 'Erro ao carregar taxas. Tente novamente.';
+    }
+} 

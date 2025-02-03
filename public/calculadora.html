@@ -1,0 +1,413 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calculadora de Taxas</title>
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        :root {
+            --primary-color: #0047FF;
+            --primary-hover: #0035C5;
+            --background-color: #F8F9FC;
+            --text-color: #333;
+            --border-color: #E1E4E8;
+        }
+
+        body { 
+            font-family: 'Inter', sans-serif;
+            margin: 20px;
+            padding: 20px;
+            background-color: white;
+            color: var(--text-color);
+        }
+
+        .form-group { 
+            margin: 15px 0; 
+        }
+
+        label { 
+            display: block; 
+            margin-bottom: 8px;
+            font-weight: 500;
+        }
+
+        input, select { 
+            width: 100%;
+            max-width: 300px;
+            padding: 10px;
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            font-size: 14px;
+        }
+
+        button {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 4px;
+            padding: 12px 24px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: background-color 0.3s ease;
+        }
+
+        button:hover { 
+            background-color: var(--primary-hover);
+        }
+
+        .calculadora-container { 
+            display: none;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .calculadora {
+            display: none;
+        }
+
+        .calculadora.active {
+            display: block;
+        }
+
+        table { 
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            background: white;
+        }
+
+        th, td { 
+            border: 1px solid var(--border-color);
+            padding: 12px;
+            text-align: center;
+        }
+
+        th { 
+            background-color: var(--background-color);
+            font-weight: 500;
+        }
+
+        .lucro-total {
+            margin-top: 20px;
+            padding: 20px;
+            background-color: var(--background-color);
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+        }
+
+        h1, h2, h3 {
+            color: var(--text-color);
+            margin-bottom: 1rem;
+        }
+    </style>
+</head>
+<body>
+    <!-- Menu -->
+    <nav class="top-menu">
+        <div class="menu-left">
+            <a href="index.html">
+                <img src="logo.png" alt="OweenPay" class="menu-logo">
+            </a>
+        </div>
+        <div class="menu-right">
+            <a href="calculadora.html" class="active">Calculadora</a>
+            <a href="mdr.html">Configurar MDR</a>
+            <a href="exportar.html">Exportar</a>
+        </div>
+    </nav>
+
+    <div class="container">
+        <h1>Calculadora de Taxas</h1>
+
+        <div class="form-group">
+            <label for="tipoCalculo">Tipo de Cálculo:</label>
+            <select id="tipoCalculo" onchange="mostrarCalculadora()">
+                <option value="">Selecione o tipo</option>
+                <option value="Fluxo">Fluxo</option>
+                <option value="Antecipado">Antecipado</option>
+            </select>
+        </div>
+
+        <!-- Calculadora de Fluxo -->
+        <div id="calculadoraFluxo" class="calculadora">
+            <h2>Calculadora de Fluxo</h2>
+            
+            <div class="form-group">
+                <label for="parceiroFluxo">Parceiro:</label>
+                <select id="parceiroFluxo" onchange="carregarTaxas('Fluxo')">
+                    <option value="">Selecione o parceiro</option>
+                    <option value="mercadopago">Mercado Pago</option>
+                    <option value="adiq">Adiq</option>
+                    <option value="pinbank">Pinbank</option>
+                    <option value="zoop">Zoop</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="valorTransacaoFluxo">Valor da Transação (R$):</label>
+                <input type="text" id="valorTransacaoFluxo" onkeyup="formatarMoeda(this)">
+            </div>
+
+            <div class="form-group">
+                <label for="margemLucroFluxo">Margem de Lucro (%):</label>
+                <input type="number" id="margemLucroFluxo" step="0.01" min="0">
+            </div>
+
+            <button onclick="calcular('Fluxo')">Calcular</button>
+            <div id="resultadoFluxo" style="display: none;"></div>
+        </div>
+
+        <!-- Calculadora de Antecipado -->
+        <div id="calculadoraAntecipado" class="calculadora">
+            <h2>Calculadora Antecipado</h2>
+            
+            <div class="form-group">
+                <label for="parceiroAntecipado">Parceiro:</label>
+                <select id="parceiroAntecipado" onchange="carregarTaxas('Antecipado')">
+                    <option value="">Selecione o parceiro</option>
+                    <option value="mercadopago">Mercado Pago</option>
+                    <option value="adiq">Adiq</option>
+                    <option value="pinbank">Pinbank</option>
+                    <option value="zoop">Zoop</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="valorTransacaoAntecipado">Valor da Transação (R$):</label>
+                <input type="text" id="valorTransacaoAntecipado" onkeyup="formatarMoeda(this)">
+            </div>
+
+            <div class="form-group">
+                <label for="margemLucroAntecipado">Margem de Lucro (%):</label>
+                <input type="number" id="margemLucroAntecipado" step="0.01" min="0">
+            </div>
+
+            <div class="form-group">
+                <label for="taxaAntecipacao">Taxa de Antecipação (%):</label>
+                <input type="number" id="taxaAntecipacao" step="0.01" min="0">
+            </div>
+
+            <button onclick="calcular('Antecipado')">Calcular</button>
+            <div id="resultadoAntecipado" style="display: none;"></div>
+        </div>
+    </div>
+
+    <script>
+        let taxasMDR = null;
+
+        function mostrarCalculadora() {
+            const tipo = document.getElementById('tipoCalculo').value;
+            
+            // Esconde todas as calculadoras
+            document.querySelectorAll('.calculadora').forEach(calc => {
+                calc.classList.remove('active');
+            });
+
+            // Mostra apenas a calculadora selecionada
+            if (tipo) {
+                document.getElementById(`calculadora${tipo}`).classList.add('active');
+            }
+        }
+
+        function formatarMoeda(input) {
+            let valor = input.value.replace(/\D/g, '');
+            valor = (parseFloat(valor) / 100).toFixed(2);
+            valor = valor.replace('.', ',');
+            valor = valor.replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1.');
+            input.value = `R$ ${valor}`;
+        }
+
+        async function carregarTaxas(tipo) {
+            console.log('Carregando taxas para tipo:', tipo);
+            
+            const parceiroSelect = document.getElementById(`parceiro${tipo}`);
+            const parceiro = parceiroSelect.value;
+
+            if (!parceiro) {
+                alert('Por favor, selecione um parceiro');
+                return;
+            }
+
+            try {
+                const response = await fetch(`http://localhost:3000/taxas/parceiros/${parceiro}/taxas.json`);
+                if (!response.ok) {
+                    throw new Error('Taxas não encontradas');
+                }
+
+                taxasMDR = await response.json();
+                console.log('Taxas carregadas para', parceiro, ':', taxasMDR);
+
+                if (!taxasMDR || !taxasMDR.debito || !taxasMDR.credito) {
+                    throw new Error('Estrutura de taxas inválida');
+                }
+            } catch (error) {
+                console.error('Erro ao carregar taxas:', error);
+                alert('Este parceiro ainda não possui taxas configuradas. Configure as taxas primeiro na página MDR.');
+                parceiroSelect.value = '';
+                taxasMDR = null;
+            }
+        }
+
+        function gerarTabelaResultados(tipo, taxasFinais) {
+            return `
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Parcelas</th>
+                            <th>Master</th>
+                            <th>Visa</th>
+                            <th>Elo</th>
+                            <th>Hiper</th>
+                            <th>Amex</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${taxasFinais}
+                    </tbody>
+                </table>
+            `;
+        }
+
+        function calcular(tipo) {
+            console.log('Iniciando cálculo para tipo:', tipo);
+            
+            if (!taxasMDR) {
+                alert('Por favor, selecione um parceiro primeiro');
+                return;
+            }
+
+            try {
+                // Pegando os elementos
+                const valorInput = document.getElementById(`valorTransacao${tipo}`);
+                const margemInput = document.getElementById(`margemLucro${tipo}`);
+                const taxaInput = tipo === 'Antecipado' ? document.getElementById('taxaAntecipacao') : null;
+
+                if (!valorInput || !margemInput) {
+                    alert('Por favor, preencha todos os campos');
+                    return;
+                }
+
+                // Formatando o valor da transação
+                const valorStr = valorInput.value
+                    .replace('R$ ', '')
+                    .replace(/\./g, '')
+                    .replace(',', '.');
+                
+                const valorTransacao = parseFloat(valorStr) || 0;
+                const margemLucro = parseFloat(margemInput.value) || 0;
+                const taxaAntecipacao = tipo === 'Antecipado' ? (parseFloat(taxaInput?.value) || 0) : 0;
+
+                console.log('Valores para cálculo:', {
+                    valorTransacao,
+                    margemLucro,
+                    taxaAntecipacao,
+                    taxasMDR
+                });
+
+                if (valorTransacao <= 0 || margemLucro < 0) {
+                    alert('Por favor, insira valores válidos');
+                    return;
+                }
+
+                // Cálculo dos resultados
+                const lucroTotal = (valorTransacao * (margemLucro / 100));
+                const bandeiras = ['master', 'visa', 'elo', 'hiper', 'amex'];
+                
+                let html = `
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Parcelas</th>
+                                <th>Master</th>
+                                <th>Visa</th>
+                                <th>Elo</th>
+                                <th>Hiper</th>
+                                <th>Amex</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                `;
+
+                // Débito
+                html += '<tr><td>Débito</td>';
+                bandeiras.forEach(bandeira => {
+                    const taxaMDR = taxasMDR.debito[bandeira] || 0;
+                    const taxaFinal = taxaMDR + margemLucro;
+                    html += `<td>${taxaFinal.toFixed(2)}%</td>`;
+                });
+                html += '</tr>';
+
+                // Crédito
+                for (let parcela = 1; parcela <= 12; parcela++) {
+                    html += `<tr><td>${parcela}x</td>`;
+                    bandeiras.forEach(bandeira => {
+                        let taxaMDR = 0;
+                        if (parcela === 1) {
+                            taxaMDR = taxasMDR.credito[bandeira]?.avista || 0;
+                        } else {
+                            taxaMDR = taxasMDR.credito[bandeira]?.parcelado[parcela] || 0;
+                        }
+                        const taxaFinal = taxaMDR + (tipo === 'Antecipado' ? taxaAntecipacao * parcela : 0) + margemLucro;
+                        html += `<td>${taxaFinal.toFixed(2)}%</td>`;
+                    });
+                    html += '</tr>';
+                }
+
+                html += '</tbody></table>';
+
+                // Resumo financeiro
+                const resumoHtml = `
+                    <div class="resumo-financeiro">
+                        <h3>Resumo Financeiro:</h3>
+                        <p>Valor da Transação: R$ ${valorTransacao.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</p>
+                        ${tipo === 'Antecipado' ? `<p>Taxa de Antecipação: ${taxaAntecipacao.toFixed(2)}%</p>` : ''}
+                        <p>Margem de Lucro: ${margemLucro.toFixed(2)}%</p>
+                        <p>Lucro Total: R$ ${lucroTotal.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</p>
+                    </div>
+                `;
+
+                // Exibindo os resultados
+                const resultadoDiv = document.getElementById(`resultado${tipo}`);
+                resultadoDiv.innerHTML = `
+                    <div class="resultados">
+                        ${html}
+                        ${resumoHtml}
+                        <div class="botao-exportar">
+                            <button onclick="exportarTabela('${tipo}')">Exportar Resultado</button>
+                        </div>
+                    </div>
+                `;
+                
+                resultadoDiv.style.display = 'block';
+
+            } catch (error) {
+                console.error('Erro detalhado:', error);
+                alert('Erro ao calcular. Por favor, verifique os valores e tente novamente.');
+            }
+        }
+
+        function exportarTabela(tipo) {
+            try {
+                // Pega os dados da tabela atual
+                const resultadoDiv = document.getElementById(`resultado${tipo}`);
+                const tabela = resultadoDiv.querySelector('table').outerHTML;
+                const resumo = resultadoDiv.querySelector('.resumo-financeiro').outerHTML;
+                
+                // Armazena os dados no localStorage
+                localStorage.setItem('tabelaExportacao', tabela);
+                localStorage.setItem('resumoExportacao', resumo);
+                localStorage.setItem('tipoCalculadora', tipo);
+                
+                // Redireciona para a página de exportação
+                window.location.href = 'exportar.html';
+            } catch (error) {
+                console.error('Erro ao exportar:', error);
+                alert('Erro ao exportar os dados. Por favor, tente novamente.');
+            }
+        }
+    </script>
+</body>
+</html> 

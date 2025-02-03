@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Owem Pay - Sistema de Taxas</title>
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        body { 
+            font-family: 'Inter', sans-serif;
+            margin: 20px;
+            padding: 20px;
+            background-color: white;
+            color: var(--text-color);
+        }
+
+        .welcome-container {
+            max-width: 1200px;
+            margin: 100px auto;
+            text-align: center;
+            padding: 0 20px;
+        }
+
+        .welcome-title {
+            color: #333;
+            font-size: 2.5em;
+            margin-bottom: 20px;
+            margin-top: 15px;
+        }
+
+        .welcome-subtitle {
+            color: #666;
+            font-size: 1.2em;
+            margin-bottom: 40px;
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 30px;
+            margin-top: 50px;
+        }
+
+        .feature-card {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .feature-title {
+            color: #0047FF;
+            font-size: 1.2em;
+            margin-bottom: 15px;
+        }
+
+        .feature-description {
+            color: #666;
+            line-height: 1.6;
+        }
+
+        .start-button {
+            display: inline-block;
+            background: #0047FF;
+            color: white;
+            padding: 15px 40px;
+            border-radius: 25px;
+            text-decoration: none;
+            font-weight: 500;
+            margin-top: 40px;
+            transition: background 0.3s ease;
+        }
+
+        .start-button:hover {
+            background: #0035C5;
+        }
+
+        /* Remove a imagem indesejada */
+        img[alt="Talvez ele tenha sido movido, editado ou excluído."] {
+            display: none !important;
+        }
+    </style>
+</head>
+<body>
+    <!-- Menu -->
+    <nav class="top-menu">
+        <div class="menu-left">
+            <a href="index.html">
+                <img src="logo.png" alt="OweenPay" class="menu-logo">
+            </a>
+        </div>
+        <div class="menu-right">
+            <a href="calculadora.html">Calculadora</a>
+            <a href="mdr.html">Configurar MDR</a>
+            <a href="exportar.html">Exportar</a>
+        </div>
+    </nav>
+
+    <!-- Container de Boas-vindas (sem a logo) -->
+    <div class="welcome-container">
+        <h1 class="welcome-title">Bem-vindo ao Sistema de Taxas Owem Pay</h1>
+        <p class="welcome-subtitle">Simplifique seus cálculos e maximize seus resultados</p>
+
+        <a href="calculadora.html" class="start-button">Começar Agora</a>
+
+        <div class="features-grid">
+            <div class="feature-card">
+                <h3 class="feature-title">Calculadora de Taxas</h3>
+                <p class="feature-description">
+                    Calcule taxas de forma rápida e precisa para diferentes bandeiras e parceiros.
+                </p>
+            </div>
+
+            <div class="feature-card">
+                <h3 class="feature-title">Configuração MDR</h3>
+                <p class="feature-description">
+                    Configure e gerencie suas taxas MDR de forma simples e eficiente.
+                </p>
+            </div>
+
+            <div class="feature-card">
+                <h3 class="feature-title">Exportação de Dados</h3>
+                <p class="feature-description">
+                    Exporte seus cálculos e relatórios em diferentes formatos.
+                </p>
+            </div>
+        </div>
+    </div>
+</body>
+</html> 

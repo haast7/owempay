@@ -1,0 +1,498 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gerenciar Taxas MDR</title>
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        :root {
+            --primary-color: #0047FF;
+            --primary-hover: #0035C5;
+            --background-color: #F8F9FC;
+            --text-color: #333;
+            --border-color: #E1E4E8;
+        }
+
+        body { 
+            font-family: 'Inter', sans-serif;
+            margin: 20px;
+            padding: 20px;
+            background-color: white;
+            color: var(--text-color);
+        }
+
+        .form-group { 
+            margin: 15px 0; 
+        }
+
+        label { 
+            display: block; 
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: var(--text-color);
+        }
+
+        input, select { 
+            width: 100%;
+            max-width: 300px;
+            padding: 10px;
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            font-size: 14px;
+            transition: border-color 0.3s ease;
+        }
+
+        input:focus, select:focus {
+            outline: none;
+            border-color: var(--primary-color);
+        }
+
+        input[type="number"] {
+            width: 120px;
+            text-align: right;
+        }
+
+        button {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 4px;
+            padding: 12px 24px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: background-color 0.3s ease;
+            margin-top: 20px;
+        }
+
+        button:hover { 
+            background-color: var(--primary-hover);
+        }
+
+        table { 
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            background: white;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        th, td { 
+            border: 1px solid var(--border-color);
+            padding: 12px;
+            text-align: center;
+        }
+
+        th { 
+            background-color: var(--background-color);
+            font-weight: 500;
+            color: var(--text-color);
+        }
+
+        td:first-child {
+            background-color: var(--background-color);
+            font-weight: 500;
+            text-align: left;
+        }
+
+        h1, h2 { 
+            color: var(--text-color);
+            margin-bottom: 1.5rem;
+        }
+
+        .select-wrapper {
+            max-width: 300px;
+            margin-bottom: 30px;
+        }
+
+        .table-wrapper {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            margin-top: 20px;
+        }
+
+        .success-message {
+            display: none;
+            background-color: #4CAF50;
+            color: white;
+            padding: 15px;
+            border-radius: 4px;
+            margin: 20px 0;
+            animation: fadeOut 3s forwards;
+        }
+
+        @keyframes fadeOut {
+            0% { opacity: 1; }
+            70% { opacity: 1; }
+            100% { opacity: 0; }
+        }
+
+        /* Estilo para inputs desabilitados */
+        input:disabled {
+            background-color: var(--background-color);
+            cursor: not-allowed;
+        }
+
+        /* Responsividade para tabela */
+        @media (max-width: 768px) {
+            .table-wrapper {
+                overflow-x: auto;
+            }
+            
+            input[type="number"] {
+                width: 80px;
+            }
+        }
+
+        .feedback-message {
+            margin-top: 15px;
+            padding: 10px;
+            border-radius: 4px;
+            display: none;
+            font-weight: bold;
+        }
+
+        .feedback-success {
+            background-color: #4CAF50;
+            color: white;
+        }
+
+        .feedback-error {
+            background-color: #f44336;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <nav class="top-menu">
+        <div class="menu-left">
+            <a href="index.html">
+                <img src="logo.png" alt="OweenPay" class="menu-logo">
+            </a>
+        </div>
+        <div class="menu-right">
+            <a href="calculadora.html">Calculadora</a>
+            <a href="mdr.html" class="active">Configurar MDR</a>
+            <a href="exportar.html">Exportar</a>
+        </div>
+    </nav>
+
+    <div class="container">
+        <h1>Gerenciar Taxas MDR</h1>
+
+        <div class="form-group">
+            <label for="parceiro">Parceiro:</label>
+            <select id="parceiro" onchange="carregarTaxas()">
+                <option value="">Selecione</option>
+                <option value="mercadopago">Mercado Pago</option>
+                <option value="adiq">Adiq</option>
+                <option value="pinbank">Pinbank</option>
+                <option value="zoop">Zoop</option>
+            </select>
+        </div>
+
+        <form id="taxasForm">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Taxas finais:</th>
+                        <th>Master</th>
+                        <th>Visa</th>
+                        <th>Elo</th>
+                        <th>Hiper</th>
+                        <th>Amex</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Débito</td>
+                        <td><input type="number" id="debito-master" step="0.01" min="0"></td>
+                        <td><input type="number" id="debito-visa" step="0.01" min="0"></td>
+                        <td><input type="number" id="debito-elo" step="0.01" min="0"></td>
+                        <td><input type="number" id="debito-hiper" step="0.01" min="0"></td>
+                        <td><input type="number" id="debito-amex" step="0.01" min="0"></td>
+                    </tr>
+                    <tr>
+                        <td>1x</td>
+                        <td><input type="number" id="credito-master-avista" step="0.01" min="0"></td>
+                        <td><input type="number" id="credito-visa-avista" step="0.01" min="0"></td>
+                        <td><input type="number" id="credito-elo-avista" step="0.01" min="0"></td>
+                        <td><input type="number" id="credito-hiper-avista" step="0.01" min="0"></td>
+                        <td><input type="number" id="credito-amex-avista" step="0.01" min="0"></td>
+                    </tr>
+                    <tr>
+                        <td>2x</td>
+                        <td><input type="number" id="credito-master-2x" step="0.01" min="0"></td>
+                        <td><input type="number" id="credito-visa-2x" step="0.01" min="0"></td>
+                        <td><input type="number" id="credito-elo-2x" step="0.01" min="0"></td>
+                        <td><input type="number" id="credito-hiper-2x" step="0.01" min="0"></td>
+                        <td><input type="number" id="credito-amex-2x" step="0.01" min="0"></td>
+                    </tr>
+                    <tr>
+                        <td>3x</td>
+                        <td><input type="number" id="credito-master-3x" step="0.01" min="0"></td>
+                        <td><input type="number" id="credito-visa-3x" step="0.01" min="0"></td>
+                        <td><input type="number" id="credito-elo-3x" step="0.01" min="0"></td>
+                        <td><input type="number" id="credito-hiper-3x" step="0.01" min="0"></td>
+                        <td><input type="number" id="credito-amex-3x" step="0.01" min="0"></td>
+                    </tr>
+                    <tr>
+                        <td>4x</td>
+                        <td><input type="number" id="credito-master-4x" step="0.01" min="0"></td>
+                        <td><input type="number" id="credito-visa-4x" step="0.01" min="0"></td>
+                        <td><input type="number" id="credito-elo-4x" step="0.01" min="0"></td>
+                        <td><input type="number" id="credito-hiper-4x" step="0.01" min="0"></td>
+                        <td><input type="number" id="credito-amex-4x" step="0.01" min="0"></td>
+                    </tr>
+                    <tr>
+                        <td>5x</td>
+                        <td><input type="number" id="credito-master-5x" step="0.01" min="0"></td>
+                        <td><input type="number" id="credito-visa-5x" step="0.01" min="0"></td>
+                        <td><input type="number" id="credito-elo-5x" step="0.01" min="0"></td>
+                        <td><input type="number" id="credito-hiper-5x" step="0.01" min="0"></td>
+                        <td><input type="number" id="credito-amex-5x" step="0.01" min="0"></td>
+                    </tr>
+                    <tr>
+                        <td>6x</td>
+                        <td><input type="number" id="credito-master-6x" step="0.01" min="0"></td>
+                        <td><input type="number" id="credito-visa-6x" step="0.01" min="0"></td>
+                        <td><input type="number" id="credito-elo-6x" step="0.01" min="0"></td>
+                        <td><input type="number" id="credito-hiper-6x" step="0.01" min="0"></td>
+                        <td><input type="number" id="credito-amex-6x" step="0.01" min="0"></td>
+                    </tr>
+                    <tr>
+                        <td>7x</td>
+                        <td><input type="number" id="credito-master-7x" step="0.01" min="0"></td>
+                        <td><input type="number" id="credito-visa-7x" step="0.01" min="0"></td>
+                        <td><input type="number" id="credito-elo-7x" step="0.01" min="0"></td>
+                        <td><input type="number" id="credito-hiper-7x" step="0.01" min="0"></td>
+                        <td><input type="number" id="credito-amex-7x" step="0.01" min="0"></td>
+                    </tr>
+                    <tr>
+                        <td>8x</td>
+                        <td><input type="number" id="credito-master-8x" step="0.01" min="0"></td>
+                        <td><input type="number" id="credito-visa-8x" step="0.01" min="0"></td>
+                        <td><input type="number" id="credito-elo-8x" step="0.01" min="0"></td>
+                        <td><input type="number" id="credito-hiper-8x" step="0.01" min="0"></td>
+                        <td><input type="number" id="credito-amex-8x" step="0.01" min="0"></td>
+                    </tr>
+                    <tr>
+                        <td>9x</td>
+                        <td><input type="number" id="credito-master-9x" step="0.01" min="0"></td>
+                        <td><input type="number" id="credito-visa-9x" step="0.01" min="0"></td>
+                        <td><input type="number" id="credito-elo-9x" step="0.01" min="0"></td>
+                        <td><input type="number" id="credito-hiper-9x" step="0.01" min="0"></td>
+                        <td><input type="number" id="credito-amex-9x" step="0.01" min="0"></td>
+                    </tr>
+                    <tr>
+                        <td>10x</td>
+                        <td><input type="number" id="credito-master-10x" step="0.01" min="0"></td>
+                        <td><input type="number" id="credito-visa-10x" step="0.01" min="0"></td>
+                        <td><input type="number" id="credito-elo-10x" step="0.01" min="0"></td>
+                        <td><input type="number" id="credito-hiper-10x" step="0.01" min="0"></td>
+                        <td><input type="number" id="credito-amex-10x" step="0.01" min="0"></td>
+                    </tr>
+                    <tr>
+                        <td>11x</td>
+                        <td><input type="number" id="credito-master-11x" step="0.01" min="0"></td>
+                        <td><input type="number" id="credito-visa-11x" step="0.01" min="0"></td>
+                        <td><input type="number" id="credito-elo-11x" step="0.01" min="0"></td>
+                        <td><input type="number" id="credito-hiper-11x" step="0.01" min="0"></td>
+                        <td><input type="number" id="credito-amex-11x" step="0.01" min="0"></td>
+                    </tr>
+                    <tr>
+                        <td>12x</td>
+                        <td><input type="number" id="credito-master-12x" step="0.01" min="0"></td>
+                        <td><input type="number" id="credito-visa-12x" step="0.01" min="0"></td>
+                        <td><input type="number" id="credito-elo-12x" step="0.01" min="0"></td>
+                        <td><input type="number" id="credito-hiper-12x" step="0.01" min="0"></td>
+                        <td><input type="number" id="credito-amex-12x" step="0.01" min="0"></td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <button type="button" id="btnSalvarTaxas">Salvar Taxas</button>
+            <div id="mensagemFeedback" class="feedback-message"></div>
+        </form>
+    </div>
+
+    <script>
+        async function carregarTaxas() {
+            const parceiro = document.getElementById('parceiro').value;
+            if (!parceiro) return;
+
+            try {
+                console.log('Carregando taxas para:', parceiro);
+                const response = await fetch(`http://localhost:3000/taxas/parceiros/${parceiro}/taxas.json`);
+                
+                if (!response.ok) {
+                    throw new Error('Taxas não encontradas');
+                }
+
+                const taxas = await response.json();
+                console.log('Taxas carregadas:', taxas);
+
+                // Preenche os campos
+                ['master', 'visa', 'elo', 'hiper', 'amex'].forEach(bandeira => {
+                    // Débito
+                    const debitoEl = document.getElementById(`debito-${bandeira}`);
+                    if (debitoEl && taxas.debito?.[bandeira]) {
+                        debitoEl.value = taxas.debito[bandeira];
+                    }
+                    
+                    // Crédito à vista
+                    const avistaEl = document.getElementById(`credito-${bandeira}-avista`);
+                    if (avistaEl && taxas.credito?.[bandeira]?.avista) {
+                        avistaEl.value = taxas.credito[bandeira].avista;
+                    }
+                    
+                    // Parcelado
+                    for (let i = 2; i <= 12; i++) {
+                        const parceladoEl = document.getElementById(`credito-${bandeira}-${i}x`);
+                        if (parceladoEl && taxas.credito?.[bandeira]?.parcelado?.[i]) {
+                            parceladoEl.value = taxas.credito[bandeira].parcelado[i];
+                        }
+                    }
+                });
+            } catch (error) {
+                console.error('Erro ao carregar taxas:', error);
+                const inputs = document.querySelectorAll('input[type="number"]');
+                inputs.forEach(input => input.value = '');
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            const inputs = document.querySelectorAll('input[type="number"]');
+            
+            inputs.forEach((input, index) => {
+                input.addEventListener('keydown', function(e) {
+                    if (e.key === 'Tab' || e.key === 'Enter') {
+                        e.preventDefault();
+                        
+                        const bandeiras = ['master', 'visa', 'elo', 'hiper', 'amex'];
+                        const currentBandeira = bandeiras.findIndex(b => input.id.includes(b));
+                        const nextBandeira = (currentBandeira + 1) % bandeiras.length;
+                        
+                        let nextId;
+                        if (e.shiftKey) {
+                            // Movimento para cima
+                            if (input.id.includes('debito')) {
+                                // Se estiver no débito, vai para o 12x da bandeira anterior
+                                const prevBandeira = (currentBandeira - 1 + bandeiras.length) % bandeiras.length;
+                                nextId = `credito-${bandeiras[prevBandeira]}-12x`;
+                            } else if (input.id.includes('avista')) {
+                                nextId = `debito-${bandeiras[currentBandeira]}`;
+                            } else {
+                                // Extrai o número de parcelas atual
+                                const currentParcela = parseInt(input.id.match(/\d+/)[0]);
+                                if (currentParcela === 2) {
+                                    nextId = `credito-${bandeiras[currentBandeira]}-avista`;
+                                } else {
+                                    nextId = `credito-${bandeiras[currentBandeira]}-${currentParcela - 1}x`;
+                                }
+                            }
+                        } else {
+                            // Movimento para baixo
+                            if (input.id.includes('debito')) {
+                                nextId = `credito-${bandeiras[currentBandeira]}-avista`;
+                            } else if (input.id.includes('avista')) {
+                                nextId = `credito-${bandeiras[currentBandeira]}-2x`;
+                            } else {
+                                // Extrai o número de parcelas atual
+                                const currentParcela = parseInt(input.id.match(/\d+/)[0]);
+                                if (currentParcela === 12) {
+                                    nextId = `debito-${bandeiras[nextBandeira]}`;
+                                } else {
+                                    nextId = `credito-${bandeiras[currentBandeira]}-${currentParcela + 1}x`;
+                                }
+                            }
+                        }
+                        
+                        const nextInput = document.getElementById(nextId);
+                        if (nextInput) {
+                            nextInput.focus();
+                            nextInput.select();
+                        }
+                    }
+                });
+            });
+        });
+
+        // Função para salvar taxas
+        async function salvarTaxas() {
+            const parceiro = document.getElementById('parceiro').value;
+            if (!parceiro) {
+                alert('Por favor, selecione um parceiro');
+                return;
+            }
+
+            try {
+                const taxas = {
+                    debito: {},
+                    credito: {}
+                };
+
+                ['master', 'visa', 'elo', 'hiper', 'amex'].forEach(bandeira => {
+                    // Débito
+                    taxas.debito[bandeira] = parseFloat(document.getElementById(`debito-${bandeira}`).value) || 0;
+                    
+                    // Crédito
+                    taxas.credito[bandeira] = {
+                        avista: parseFloat(document.getElementById(`credito-${bandeira}-avista`).value) || 0,
+                        parcelado: {}
+                    };
+                    
+                    // Parcelado
+                    for (let i = 2; i <= 12; i++) {
+                        taxas.credito[bandeira].parcelado[i] = 
+                            parseFloat(document.getElementById(`credito-${bandeira}-${i}x`).value) || 0;
+                    }
+                });
+
+                console.log('Enviando dados para salvar:', { parceiro, taxas });
+
+                const response = await fetch(`http://localhost:3000/salvar-taxas/${parceiro}`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(taxas)
+                });
+
+                if (!response.ok) {
+                    throw new Error('Erro ao salvar taxas');
+                }
+
+                const feedbackDiv = document.getElementById('mensagemFeedback');
+                feedbackDiv.textContent = 'Taxas salvas com sucesso!';
+                feedbackDiv.className = 'feedback-message feedback-success';
+                feedbackDiv.style.display = 'block';
+                
+                setTimeout(() => {
+                    feedbackDiv.style.display = 'none';
+                }, 3000);
+
+            } catch (error) {
+                console.error('Erro ao salvar:', error);
+                const feedbackDiv = document.getElementById('mensagemFeedback');
+                feedbackDiv.textContent = 'Erro ao salvar as taxas: ' + error.message;
+                feedbackDiv.className = 'feedback-message feedback-error';
+                feedbackDiv.style.display = 'block';
+            }
+        }
+
+        // Event listeners
+        document.addEventListener('DOMContentLoaded', function() {
+            const parceiroSelect = document.getElementById('parceiro');
+            parceiroSelect.addEventListener('change', carregarTaxas);
+            
+            const btnSalvar = document.querySelector('button');
+            btnSalvar.addEventListener('click', salvarTaxas);
+            
+            console.log('Event listeners adicionados');
+        });
+    </script>
+</body>
+</html>

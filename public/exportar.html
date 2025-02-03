@@ -1,0 +1,535 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Exportar</title>
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        :root {
+            --primary-color: #0047FF;
+            --primary-hover: #0035C5;
+            --background-color: #F8F9FC;
+            --text-color: #333;
+            --border-color: #E1E4E8;
+        }
+
+        body { 
+            font-family: 'Inter', sans-serif;
+            margin: 20px;
+            padding: 20px;
+            background-color: white;
+            color: var(--text-color);
+        }
+
+        .export-container {
+            width: 210mm;
+            min-height: 297mm;
+            padding: 20mm;
+            margin: 20px auto;
+            background: white;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            border-radius: 12px;
+            box-sizing: border-box;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+        }
+
+        .blue-header {
+            flex: 0 0 auto;
+            margin: 0 0 15mm 0;
+        }
+
+        .blue-header h2 {
+            margin-bottom: 5px;
+            font-size: 32px;
+            font-weight: 600;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            padding-left: 20px;
+        }
+
+        .blue-header p {
+            font-size: 20px;
+            opacity: 0.9;
+            padding-left: 20px;
+        }
+
+        .table-container {
+            flex: 1 1 auto;
+            display: flex;
+            flex-direction: column;
+            margin: 0;
+        }
+
+        .rates-table {
+            width: 100%;
+            margin-bottom: 10mm;
+        }
+
+        .rates-table th,
+        .rates-table thead th {
+            background-color: #0047FF !important;
+            color: white !important;
+            font-weight: 600 !important;
+            padding: 15px !important;
+            text-align: center !important;
+            font-size: 14px !important;
+            text-transform: uppercase !important;
+            border: 1px solid rgba(255, 255, 255, 0.3) !important;
+        }
+
+        .rates-table td,
+        .rates-table tbody td {
+            padding: 12px !important;
+            text-align: center !important;
+            font-size: 14px !important;
+            border: 1px solid #e1e4e8 !important;
+            background: white !important;
+        }
+
+        .rates-table td:first-child,
+        .rates-table tbody td:first-child {
+            background: #f8f9fc !important;
+            font-weight: 600 !important;
+            color: #0047FF !important;
+            border-right: 2px solid #0047FF !important;
+        }
+
+        .rates-table tbody tr:nth-child(even) td:not(:first-child) {
+            background: #f8f9fc;
+        }
+
+        .rates-table tbody tr:hover td:not(:first-child) {
+            background: #f0f7ff;
+            transition: all 0.2s ease;
+        }
+
+        .rates-table td[contenteditable="true"] {
+            position: relative;
+            cursor: text;
+        }
+
+        .rates-table td[contenteditable="true"]:focus {
+            outline: none;
+            background: white !important;
+            box-shadow: inset 0 0 0 2px #0047FF;
+        }
+
+        .export-pdf-btn {
+            background: linear-gradient(135deg, var(--primary-color) 0%, #1a66ff 100%);
+            color: white;
+            border: none;
+            padding: 14px 28px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 500;
+            margin-top: 25px;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0, 71, 255, 0.2);
+            display: block;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .export-pdf-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0, 71, 255, 0.3);
+        }
+
+        .header-content {
+            flex: 0 0 auto;
+            margin-bottom: 15mm;
+        }
+
+        .export-logo {
+            max-height: 60px;
+            margin: 0 auto;
+        }
+
+        .export-button-container {
+            text-align: center;
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 1px solid #e1e4e8;
+        }
+
+        @media print {
+            body {
+                margin: 0;
+                padding: 0;
+            }
+
+            .export-container {
+                width: 210mm;
+                max-width: 210mm;
+                min-height: 297mm;
+                padding: 20mm;
+                margin: 0;
+                box-sizing: border-box;
+            }
+
+            .header-content {
+                margin-bottom: 15mm;
+            }
+
+            .export-logo {
+                height: 40px;
+            }
+
+            .blue-header {
+                padding: 15px;
+                margin: 10mm 0;
+            }
+
+            .blue-header h2 {
+                font-size: 20pt;
+                margin-bottom: 5px;
+            }
+
+            .blue-header p {
+                font-size: 12pt;
+            }
+
+            .table-container {
+                margin: 10mm 0;
+            }
+
+            .rates-table {
+                width: 100%;
+                max-width: 100%;
+                font-size: 10pt;
+            }
+
+            .banner-container img {
+                max-height: 80mm;
+                width: auto;
+            }
+
+            .export-button-container {
+                display: none;
+            }
+        }
+
+        @media screen and (max-width: 768px) {
+            .export-container {
+                padding: 20px;
+            }
+
+            .table-container {
+                padding: 15px;
+            }
+
+            .rates-table th, .rates-table td {
+                padding: 10px 5px;
+                font-size: 13px;
+            }
+        }
+
+        .banner-container {
+            flex: 0 0 auto;
+            margin-top: auto;
+            padding-top: 10mm;
+        }
+
+        .banner-container img {
+            max-height: 45mm;
+            width: auto;
+            object-fit: contain;
+        }
+
+        .rates-table td, .rates-table th {
+            border: none;
+        }
+
+        .rates-table th, .rates-table td {
+            padding-right: 30px;
+        }
+
+        [contenteditable="true"] {
+            cursor: text;
+            transition: all 0.2s ease;
+            outline: none;
+        }
+
+        [contenteditable="true"]:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+
+        [contenteditable="true"]:focus {
+            background-color: rgba(255, 255, 255, 0.2);
+            outline: none;
+        }
+
+        .blue-header [contenteditable="true"] {
+            padding: 5px 10px;
+            border-radius: 4px;
+        }
+
+        .blue-header [contenteditable="true"]:empty:before {
+            content: attr(data-placeholder);
+            color: rgba(255, 255, 255, 0.8);
+        }
+
+        @media print {
+            [contenteditable="true"] {
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+        }
+
+        .blue-header p[contenteditable="true"] {
+            white-space: pre-wrap;
+            min-height: 1.2em;
+            line-height: 1.5;
+        }
+
+        .proposal-info {
+            margin: 5mm 0;
+        }
+
+        .proposal-info p {
+            margin: 5px 0;
+        }
+
+        .proposal-info .label {
+            font-weight: 700;
+            color: #333;
+            font-size: 14px;
+        }
+
+        .proposal-info .date {
+            margin-left: 5px;
+            min-width: 80px;
+            display: inline-block;
+            border-bottom: none;
+            padding: 2px 5px;
+            font-weight: 700;
+            font-size: 14px;
+            color: #333;
+        }
+
+        .proposal-info .date:hover {
+            background-color: rgba(0, 0, 0, 0.02);
+        }
+
+        .proposal-info .date:focus {
+            outline: none;
+            background-color: rgba(0, 0, 0, 0.05);
+            border-bottom: 1px solid #0047FF;
+        }
+    </style>
+</head>
+<body>
+    <!-- Menu -->
+    <nav class="top-menu">
+        <div class="menu-left">
+            <a href="index.html">
+                <img src="logo.png" alt="OweenPay" class="menu-logo">
+            </a>
+        </div>
+        <div class="menu-right">
+            <a href="calculadora.html">Calculadora</a>
+            <a href="mdr.html">Configurar MDR</a>
+            <a href="exportar.html" class="active">Exportar</a>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div class="export-container">
+            <div class="header-content">
+                <img src="logo.png" alt="OweenPay" class="export-logo">
+            </div>
+
+            <div class="blue-header">
+                <h2 contenteditable="true">Condições Personalizadas</h2>
+                <p contenteditable="true">para você lucrar mais!</p>
+            </div>
+
+            <div class="table-container">
+                <div id="tabela-editavel"></div>
+                <div class="proposal-info">
+                    <p class="proposal-date">
+                        <span class="label">Data da proposta:</span> 
+                        <span class="date" contenteditable="true"></span>
+                    </p>
+                    <p class="proposal-validity">
+                        <span class="label">Validade da proposta:</span> 
+                        <span class="date" contenteditable="true"></span>
+                    </p>
+                </div>
+            </div>
+
+            <div class="banner-container">
+                <img src="banner.png" alt="Banner OweenPay">
+            </div>
+        </div>
+        
+        <div class="export-button-container">
+            <button class="export-pdf-btn" onclick="exportarPDF()">Exportar PDF</button>
+        </div>
+    </div>
+
+    <script src="https://raw.githack.com/eKoopmans/html2pdf/master/dist/html2pdf.bundle.js"></script>
+    <script>
+        window.onload = function() {
+            try {
+                // Verifica se a logo existe e atualiza o src se necessário
+                const logos = document.querySelectorAll('.export-logo, .menu-logo');
+                logos.forEach(logo => {
+                    logo.onerror = function() {
+                        // Se a logo não carregar, tenta o caminho alternativo
+                        this.src = 'https://haast7.github.io/calculadora/logo.png';
+                    };
+                });
+
+                // Verifica se o banner existe e atualiza o src se necessário
+                const banner = document.querySelector('.banner-container img');
+                if (banner) {
+                    banner.onerror = function() {
+                        this.src = 'https://haast7.github.io/calculadora/banner.png';
+                    };
+                }
+
+                const tabela = localStorage.getItem('tabelaExportacao');
+                
+                if (tabela) {
+                    const tabelaDiv = document.getElementById('tabela-editavel');
+                    tabelaDiv.innerHTML = tabela;
+                    
+                    // Adiciona nossas classes à tabela
+                    const tabelaElement = tabelaDiv.querySelector('table');
+                    tabelaElement.className = 'rates-table';
+                    
+                    // Adiciona classes aos elementos th e td
+                    const headers = tabelaDiv.querySelectorAll('th');
+                    headers.forEach(header => {
+                        header.style.backgroundColor = '#0047FF';
+                        header.style.color = 'white';
+                        header.style.border = '1px solid rgba(255, 255, 255, 0.3)';
+                    });
+
+                    // Torna células editáveis e aplica estilos
+                    const celulas = tabelaDiv.querySelectorAll('td');
+                    celulas.forEach(celula => {
+                        celula.contentEditable = true;
+                        celula.style.border = '1px solid #e1e4e8';
+                        celula.style.padding = '12px';
+                        celula.style.textAlign = 'center';
+                    });
+
+                    // Estiliza primeira coluna
+                    const primeirasCelulas = tabelaDiv.querySelectorAll('tr td:first-child');
+                    primeirasCelulas.forEach(celula => {
+                        celula.style.backgroundColor = '#f8f9fc';
+                        celula.style.fontWeight = '600';
+                        celula.style.color = '#0047FF';
+                        celula.style.borderRight = '2px solid #0047FF';
+                    });
+
+                    // Adiciona placeholders para os textos editáveis
+                    const titulo = document.querySelector('.blue-header h2');
+                    const subtitulo = document.querySelector('.blue-header p');
+                    
+                    titulo.setAttribute('data-placeholder', 'Clique para editar o título');
+                    subtitulo.setAttribute('data-placeholder', 'Clique para editar o subtítulo');
+                    
+                    // Previne quebra de linha apenas no título
+                    titulo.addEventListener('keydown', function(e) {
+                        if (e.key === 'Enter') {
+                            e.preventDefault();
+                        }
+                    });
+
+                    // Limpa o localStorage
+                    localStorage.removeItem('tabelaExportacao');
+                    localStorage.removeItem('resumoExportacao');
+                    localStorage.removeItem('tipoCalculadora');
+
+                    // Adicione dentro da função window.onload, após carregar a tabela
+                    function formatDate(date) {
+                        return date.toLocaleDateString('pt-BR');
+                    }
+
+                    // Preenche as datas
+                    const hoje = new Date();
+                    const validade = new Date();
+                    validade.setDate(hoje.getDate() + 2);
+
+                    const dataPropostaSpan = document.querySelector('.proposal-date .date');
+                    const validadePropostaSpan = document.querySelector('.proposal-validity .date');
+
+                    if (dataPropostaSpan && validadePropostaSpan) {
+                        dataPropostaSpan.textContent = formatDate(hoje);
+                        validadePropostaSpan.textContent = formatDate(validade);
+                    }
+                }
+            } catch (error) {
+                console.error('Erro ao carregar dados:', error);
+                alert('Erro ao carregar os dados para exportação.');
+            }
+        }
+
+        function exportarPDF() {
+            const container = document.querySelector('.export-container');
+            
+            // Captura a altura atual do container
+            const containerHeight = container.offsetHeight;
+            const containerWidth = container.offsetWidth;
+            
+            const opt = {
+                filename: 'taxas_oweenpay.pdf',
+                html2canvas: { 
+                    scale: 2,
+                    useCORS: true,
+                    scrollY: 0,
+                    width: containerWidth,
+                    height: containerHeight
+                },
+                jsPDF: {
+                    unit: 'px',
+                    format: [containerWidth, containerHeight],
+                    orientation: 'portrait',
+                    hotfixes: ['px_scaling']
+                },
+                margin: 0
+            };
+
+            const originalStyle = container.style.cssText;
+
+            // Preserva o estilo exato do container
+            container.style.cssText = `
+                width: ${containerWidth}px;
+                height: ${containerHeight}px;
+                background: white;
+                box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+                border-radius: 12px;
+                margin: 0;
+                padding: 20mm;
+                box-sizing: border-box;
+            `;
+
+            // Garante que o texto do cabeçalho seja branco
+            const blueHeader = container.querySelector('.blue-header');
+            const blueHeaderTitle = blueHeader.querySelector('h2');
+            const blueHeaderSubtitle = blueHeader.querySelector('p');
+            
+            blueHeaderTitle.style.color = 'white';
+            blueHeaderSubtitle.style.color = 'white';
+
+            // Gera o PDF
+            html2pdf()
+                .from(container)
+                .set(opt)
+                .save()
+                .then(() => {
+                    // Restaura os estilos originais
+                    container.style.cssText = originalStyle;
+                    blueHeaderTitle.style.color = '';
+                    blueHeaderSubtitle.style.color = '';
+                });
+        }
+    </script>
+</body>
+</html>
