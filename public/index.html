@@ -80,6 +80,14 @@
             background: #0035C5;
         }
 
+        /* Remover qualquer banner não desejado */
+        img[src*="Banner.png"],
+        img[src*="banner.png"],
+        .banner-container,
+        .banner {
+            display: none !important;
+        }
+
         /* Remove a imagem indesejada */
         img[alt="Talvez ele tenha sido movido, editado ou excluído."] {
             display: none !important;
