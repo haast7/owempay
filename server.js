@@ -62,6 +62,11 @@ app.get('/taxas/parceiros/:parceiro/taxas.json', async (req, res) => {
     }
 });
 
+// Rota específica para as imagens na raiz
+app.get('/*.png', (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', req.path));
+});
+
 // Tratamento de erros
 app.use((err, req, res, next) => {
     console.error(err);
