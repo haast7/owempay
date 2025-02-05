@@ -136,19 +136,13 @@
             <h2>Calculadora de Fluxo</h2>
             
             <div class="form-group">
-                <label for="parceiroFluxo">Parceiro:</label>
-                <select id="parceiroFluxo" onchange="carregarTaxas('Fluxo')">
-                    <option value="">Selecione o parceiro</option>
-                    <option value="mercadopago">Mercado Pago</option>
-                    <option value="adiq">Adiq</option>
-                    <option value="pinbank">Pinbank</option>
-                    <option value="zoop">Zoop</option>
-                </select>
+                <label for="valorTransacaoFluxo">Valor da Transação (R$):</label>
+                <input type="text" id="valorTransacaoFluxo" onkeyup="formatarMoeda(this)">
             </div>
 
             <div class="form-group">
-                <label for="valorTransacaoFluxo">Valor da Transação (R$):</label>
-                <input type="text" id="valorTransacaoFluxo" onkeyup="formatarMoeda(this)">
+                <label for="mdrFluxo">MDR (%):</label>
+                <input type="number" id="mdrFluxo" step="0.01" min="0">
             </div>
 
             <div class="form-group">
@@ -165,19 +159,13 @@
             <h2>Calculadora Antecipado</h2>
             
             <div class="form-group">
-                <label for="parceiroAntecipado">Parceiro:</label>
-                <select id="parceiroAntecipado" onchange="carregarTaxas('Antecipado')">
-                    <option value="">Selecione o parceiro</option>
-                    <option value="mercadopago">Mercado Pago</option>
-                    <option value="adiq">Adiq</option>
-                    <option value="pinbank">Pinbank</option>
-                    <option value="zoop">Zoop</option>
-                </select>
+                <label for="valorTransacaoAntecipado">Valor da Transação (R$):</label>
+                <input type="text" id="valorTransacaoAntecipado" onkeyup="formatarMoeda(this)">
             </div>
 
             <div class="form-group">
-                <label for="valorTransacaoAntecipado">Valor da Transação (R$):</label>
-                <input type="text" id="valorTransacaoAntecipado" onkeyup="formatarMoeda(this)">
+                <label for="mdrAntecipado">MDR (%):</label>
+                <input type="number" id="mdrAntecipado" step="0.01" min="0">
             </div>
 
             <div class="form-group">
@@ -272,25 +260,14 @@
         }
 
         function calcular(tipo) {
-            console.log('Iniciando cálculo para tipo:', tipo);
-            
-            if (!taxasMDR) {
-                alert('Por favor, selecione um parceiro primeiro');
-                return;
-            }
-
             try {
                 // Pegando os elementos
                 const valorInput = document.getElementById(`valorTransacao${tipo}`);
                 const margemInput = document.getElementById(`margemLucro${tipo}`);
+                const mdrInput = document.getElementById(`mdr${tipo}`);
                 const taxaInput = tipo === 'Antecipado' ? document.getElementById('taxaAntecipacao') : null;
 
-                if (!valorInput || !margemInput) {
-                    alert('Por favor, preencha todos os campos');
-                    return;
-                }
-
-                // Formatando o valor da transação
+                // Formatando valores
                 const valorStr = valorInput.value
                     .replace('R$ ', '')
                     .replace(/\./g, '')
@@ -298,19 +275,35 @@
                 
                 const valorTransacao = parseFloat(valorStr) || 0;
                 const margemLucro = parseFloat(margemInput.value) || 0;
+                const mdrBase = parseFloat(mdrInput.value) || 0;
                 const taxaAntecipacao = tipo === 'Antecipado' ? (parseFloat(taxaInput?.value) || 0) : 0;
 
-                console.log('Valores para cálculo:', {
+                console.log('Valores iniciais:', {
                     valorTransacao,
                     margemLucro,
+                    mdrBase,
                     taxaAntecipacao,
-                    taxasMDR
+                    tipo
                 });
 
-                if (valorTransacao <= 0 || margemLucro < 0) {
-                    alert('Por favor, insira valores válidos');
-                    return;
+                // Definindo taxas mínimas
+                const MDR_MINIMO = 1.99;
+                const ANTECIPACAO_MINIMA = 1.5;
+
+                // Cálculo do prejuízo em relação às taxas mínimas
+                let prejuizoMDR = 0;
+                let prejuizoAntecipacao = 0;
+
+                if (mdrBase < MDR_MINIMO) {
+                    prejuizoMDR = MDR_MINIMO - mdrBase;
                 }
+
+                if (tipo === 'Antecipado' && taxaAntecipacao < ANTECIPACAO_MINIMA) {
+                    prejuizoAntecipacao = ANTECIPACAO_MINIMA - taxaAntecipacao;
+                }
+
+                // Calcula o prejuízo em valor monetário
+                const prejuizoTotal = (prejuizoMDR + prejuizoAntecipacao) * (valorTransacao / 100);
 
                 // Cálculo dos resultados
                 const lucroTotal = (valorTransacao * (margemLucro / 100));
@@ -331,26 +324,34 @@
                         <tbody>
                 `;
 
-                // Débito
-                html += '<tr><td>Débito</td>';
-                bandeiras.forEach(bandeira => {
-                    const taxaMDR = taxasMDR.debito[bandeira] || 0;
-                    const taxaFinal = taxaMDR + margemLucro;
-                    html += `<td>${taxaFinal.toFixed(2)}%</td>`;
-                });
-                html += '</tr>';
-
                 // Crédito
                 for (let parcela = 1; parcela <= 12; parcela++) {
                     html += `<tr><td>${parcela}x</td>`;
                     bandeiras.forEach(bandeira => {
-                        let taxaMDR = 0;
-                        if (parcela === 1) {
-                            taxaMDR = taxasMDR.credito[bandeira]?.avista || 0;
+                        let taxaFinal = 0;
+
+                        if (tipo === 'Antecipado') {
+                            const fatorAntecipacao = 0.5 + (parcela / 2);
+                            const taxaAntecipacaoTotal = fatorAntecipacao * taxaAntecipacao;
+                            taxaFinal = taxaAntecipacaoTotal + mdrBase + margemLucro;
                         } else {
-                            taxaMDR = taxasMDR.credito[bandeira]?.parcelado[parcela] || 0;
+                            // Modo Fluxo com acréscimos por faixa de parcelas
+                            taxaFinal = Number(mdrBase) + Number(margemLucro);
+                            
+                            if (parcela >= 2 && parcela <= 6) {
+                                taxaFinal += 0.5; // Acréscimo de 0.5% para 2x até 6x
+                            } else if (parcela >= 7 && parcela <= 12) {
+                                taxaFinal += 0.8; // Acréscimo de 0.8% para 7x até 12x
+                            }
+                            
+                            console.log('Cálculo Fluxo:', {
+                                parcela,
+                                mdrBase: Number(mdrBase),
+                                margemLucro: Number(margemLucro),
+                                taxaFinal
+                            });
                         }
-                        const taxaFinal = taxaMDR + (tipo === 'Antecipado' ? taxaAntecipacao * parcela : 0) + margemLucro;
+                        
                         html += `<td>${taxaFinal.toFixed(2)}%</td>`;
                     });
                     html += '</tr>';
@@ -369,11 +370,23 @@
                     </div>
                 `;
 
+                // Adiciona resumo do prejuízo
+                let resumoPrejuizo = '';
+                if (prejuizoTotal > 0) {
+                    resumoPrejuizo = `
+                        <div class="prejuizo-resumo" style="color: red; margin-top: 15px;">
+                            <h3>Alerta de Prejuízo:</h3>
+                            <p>Prejuízo na transação: R$ ${prejuizoTotal.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</p>
+                        </div>
+                    `;
+                }
+
                 // Exibindo os resultados
                 const resultadoDiv = document.getElementById(`resultado${tipo}`);
                 resultadoDiv.innerHTML = `
                     <div class="resultados">
                         ${html}
+                        ${resumoPrejuizo}
                         ${resumoHtml}
                         <div class="botao-exportar">
                             <button onclick="exportarTabela('${tipo}')">Exportar Resultado</button>

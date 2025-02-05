@@ -383,52 +383,90 @@
     <script>
         window.onload = function() {
             try {
-                // Verifica se a logo existe e atualiza o src se necessário
-                const logos = document.querySelectorAll('.export-logo, .menu-logo');
-                logos.forEach(logo => {
-                    logo.onerror = function() {
-                        // Se a logo não carregar, tenta o caminho alternativo
-                        this.src = 'https://haast7.github.io/calculadora/logo.png';
+                // Verifica todas as imagens
+                const allImages = document.querySelectorAll('img');
+                allImages.forEach(img => {
+                    img.onerror = function() {
+                        if (this.src.includes('Logo.png')) {
+                            this.src = 'https://haast7.github.io/calculadora/logo.png';
+                        } else if (this.src.includes('Banner.png')) {
+                            this.src = 'https://haast7.github.io/calculadora/banner.png';
+                        }
                     };
                 });
-
-                // Verifica se o banner existe e atualiza o src se necessário
-                const banner = document.querySelector('.banner-container img');
-                if (banner) {
-                    banner.onerror = function() {
-                        this.src = 'https://haast7.github.io/calculadora/banner.png';
-                    };
-                }
 
                 const tabela = localStorage.getItem('tabelaExportacao');
                 
                 if (tabela) {
                     const tabelaDiv = document.getElementById('tabela-editavel');
-                    tabelaDiv.innerHTML = tabela;
                     
-                    // Adiciona nossas classes à tabela
-                    const tabelaElement = tabelaDiv.querySelector('table');
-                    tabelaElement.className = 'rates-table';
+                    // Criar nova tabela simplificada
+                    let novaTabela = document.createElement('table');
+                    novaTabela.className = 'rates-table';
                     
-                    // Adiciona classes aos elementos th e td
-                    const headers = tabelaDiv.querySelectorAll('th');
+                    // Criar cabeçalho
+                    let thead = document.createElement('thead');
+                    thead.innerHTML = `
+                        <tr>
+                            <th>PARCELAS</th>
+                            <th>TAXAS</th>
+                        </tr>
+                    `;
+                    novaTabela.appendChild(thead);
+                    
+                    // Criar corpo da tabela
+                    let tbody = document.createElement('tbody');
+                    
+                    // Parsear tabela original
+                    const tempDiv = document.createElement('div');
+                    tempDiv.innerHTML = tabela;
+                    const linhasOriginais = tempDiv.querySelectorAll('tr');
+                    
+                    // Pegar apenas a primeira coluna (Parcelas) e a coluna Master
+                    linhasOriginais.forEach((linha, index) => {
+                        if (index > 0) { // Pula o cabeçalho
+                            const colunas = linha.querySelectorAll('td');
+                            if (colunas.length > 0) {
+                                const parcela = colunas[0].textContent;
+                                const taxa = colunas[1].textContent; // Coluna Master
+                                
+                                tbody.innerHTML += `
+                                    <tr>
+                                        <td>${parcela}</td>
+                                        <td contenteditable="true">${taxa}</td>
+                                    </tr>
+                                `;
+                            }
+                        }
+                    });
+                    
+                    novaTabela.appendChild(tbody);
+                    tabelaDiv.innerHTML = '';
+                    tabelaDiv.appendChild(novaTabela);
+                    
+                    // Aplicar estilos
+                    const headers = novaTabela.querySelectorAll('th');
                     headers.forEach(header => {
                         header.style.backgroundColor = '#0047FF';
                         header.style.color = 'white';
                         header.style.border = '1px solid rgba(255, 255, 255, 0.3)';
+                        header.style.padding = '15px';
+                        header.style.textAlign = 'center';
+                        header.style.fontSize = '14px';
+                        header.style.textTransform = 'uppercase';
                     });
 
-                    // Torna células editáveis e aplica estilos
-                    const celulas = tabelaDiv.querySelectorAll('td');
+                    // Estilizar células
+                    const celulas = novaTabela.querySelectorAll('td');
                     celulas.forEach(celula => {
-                        celula.contentEditable = true;
                         celula.style.border = '1px solid #e1e4e8';
                         celula.style.padding = '12px';
                         celula.style.textAlign = 'center';
+                        celula.style.fontSize = '14px';
                     });
 
-                    // Estiliza primeira coluna
-                    const primeirasCelulas = tabelaDiv.querySelectorAll('tr td:first-child');
+                    // Estilizar primeira coluna
+                    const primeirasCelulas = novaTabela.querySelectorAll('tr td:first-child');
                     primeirasCelulas.forEach(celula => {
                         celula.style.backgroundColor = '#f8f9fc';
                         celula.style.fontWeight = '600';
@@ -474,7 +512,7 @@
                     }
                 }
             } catch (error) {
-                console.error('Erro ao carregar dados:', error);
+                console.error('Erro:', error);
                 alert('Erro ao carregar os dados para exportação.');
             }
         }
